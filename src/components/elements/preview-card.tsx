@@ -5,7 +5,6 @@ import { useCopyToClipboard } from "@/lib/hooks";
 import type { Configuration, Point, Size } from "@/lib/types";
 import { cn, interpolate } from "@/lib/utils";
 import { IconCopy, IconCopyCheckFilled } from "@tabler/icons-react";
-import { useMouse } from "@uidotdev/usehooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const GRID_GAP = 8;

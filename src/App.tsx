@@ -1,11 +1,11 @@
 import { ConfigurationCard } from "@/components/elements/configuration-card";
 import PreviewCard from "@/components/elements/preview-card";
+import { IconBrandGithub, IconEaseInOutControlPointsFilled } from "@tabler/icons-react";
 import { useState } from "react";
-import { Separator } from "./components/ui/separator";
-import type { Configuration } from "./lib/types";
-import { IconBrandGithub, IconBrandGithubFilled, IconEaseInOutControlPoints, IconEaseInOutControlPointsFilled } from "@tabler/icons-react";
 import { Button } from "./components/ui/button";
+import { Separator } from "./components/ui/separator";
 import { Tooltip, TooltipContent, TooltipTrigger } from "./components/ui/tooltip";
+import type { Configuration } from "./lib/types";
 
 export function App() {
 
