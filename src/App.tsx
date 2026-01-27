@@ -15,7 +15,8 @@ export function App() {
         p2x: 20,
         p2y: 36,
         endX: 36,
-        endY: 36
+        endY: 36,
+        t: 0.5
     })
 
     return (

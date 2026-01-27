@@ -3,8 +3,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { useCopyToClipboard } from "@/lib/hooks";
 import type { Configuration, Point, Size } from "@/lib/types";
-import { cn } from "@/lib/utils";
+import { cn, interpolate } from "@/lib/utils";
 import { IconCopy, IconCopyCheckFilled } from "@tabler/icons-react";
+import { useMouse } from "@uidotdev/usehooks";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 
 const GRID_GAP = 8;
@@ -75,7 +76,47 @@ export function PreviewCard({ configuration }: Props) {
         `.trim();
     }, [configuration]);
 
+    // copy svg code to clipboard
     const { copy, copied } = useCopyToClipboard();
+
+    // preview interpolation points
+    const pathRef = useRef<SVGPathElement>(null)
+    const interpolation = useMemo(() => {
+        const { startX, startY, endX, endY, p1x, p1y, p2x, p2y, t } = configuration;
+        const s = {
+            x: startX,
+            y: startY
+        };
+        const p1 = {
+            x: p1x,
+            y: p1y
+        };
+        const p2 = {
+            x: p2x,
+            y: p2y
+        };
+        const e = {
+            x: endX,
+            y: endY
+        };
+        // construct first level of interpolation
+        const q1 = transform(interpolate(s, p1, t));
+        const q2 = transform(interpolate(p1, p2, t));
+        const q3 = transform(interpolate(p2, e, t));
+        // construct second level of interpolation
+        const c1 = interpolate(q1, q2, t);
+        const c2 = interpolate(q2, q3, t);
+        // construct third level of interpolation
+        const b = interpolate(c1, c2, t);
+        return {
+            b,
+            q1,
+            q2,
+            q3,
+            c1,
+            c2
+        }
+    }, [configuration])
 
     return (
         <Card className="flex-1 pb-0 gap-4">
@@ -113,10 +154,46 @@ export function PreviewCard({ configuration }: Props) {
                             ))
                         }
                         {/* curve */}
-                        <path className="stroke-[8px] stroke-amber-500/50" fill="none" d={d} />
+                        <path ref={pathRef} className="stroke-[8px] stroke-amber-500/50" fill="none" d={d} />
                         {/* lines connecting control points */}
-                        <line x1={curve[0].x} y1={curve[0].y} x2={curve[1].x} y2={curve[1].y} className="stroke-gray-400 stroke-2" strokeDasharray="4 4" />
-                        <line x1={curve[3].x} y1={curve[3].y} x2={curve[2].x} y2={curve[2].y} className="stroke-gray-400 stroke-2" strokeDasharray="4 4" />
+                        <line x1={curve[0].x} y1={curve[0].y} x2={curve[1].x} y2={curve[1].y} className="stroke-gray-300 stroke-2" strokeDasharray="4 4" />
+                        <line x1={curve[2].x} y1={curve[2].y} x2={curve[3].x} y2={curve[3].y} className="stroke-gray-300 stroke-2" strokeDasharray="4 4" />
+                        <line x1={curve[1].x} y1={curve[1].y} x2={curve[2].x} y2={curve[2].y} className="stroke-gray-300 stroke-2" strokeDasharray="4 4" />
+                        {/* interpolation */}
+                        {/* Level 1 */}
+                        <line x1={interpolation.q1.x} y1={interpolation.q1.y} x2={interpolation.q2.x} y2={interpolation.q2.y} className="stroke-indigo-500 stroke-1" strokeDasharray="2 2" />
+                        <line x1={interpolation.q2.x} y1={interpolation.q2.y} x2={interpolation.q3.x} y2={interpolation.q3.y} className="stroke-indigo-500 stroke-1" strokeDasharray="2 2" />
+                        {
+                            [interpolation.q1, interpolation.q2, interpolation.q3].map((point, idx) => (
+                                <circle
+                                    key={`interpolation__l1__${idx}`}
+                                    cx={point.x}
+                                    cy={point.y}
+                                    r={4}
+                                    className="fill-indigo-500"
+                                />
+                            ))
+                        }
+                        {/* Level 2 */}
+                        <line x1={interpolation.c1.x} y1={interpolation.c1.y} x2={interpolation.c2.x} y2={interpolation.c2.y} className="stroke-blue-500 stroke-1" strokeDasharray="2 2" />
+                        {
+                            [interpolation.c1, interpolation.c2].map((point, idx) => (
+                                <circle
+                                    key={`interpolation__l2__${idx}`}
+                                    cx={point.x}
+                                    cy={point.y}
+                                    r={4}
+                                    className="fill-blue-500"
+                                />
+                            ))
+                        }
+                        {/* Level 3 */}
+                        <circle
+                            cx={interpolation.b.x}
+                            cy={interpolation.b.y}
+                            r={6}
+                            className="fill-background stroke-4 stroke-amber-500"
+                        />
                         {/* control points */}
                         {
                             curve.map((point, idx) => (
@@ -124,12 +201,11 @@ export function PreviewCard({ configuration }: Props) {
                                     "fill-background stroke-4",
                                     {
                                         "stroke-foreground": idx === 0 || idx === 3,
-                                        "stroke-gray-400": idx === 1 || idx === 2,
+                                        "stroke-gray-300": idx === 1 || idx === 2,
                                     }
                                 )} />
                             ))
                         }
-
                     </svg>
                 </div>
             </CardContent>

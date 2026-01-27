@@ -8,9 +8,10 @@ export interface Configuration {
   p2y: number;
   endX: number;
   endY: number;
+  t: number;
 }
 export type ConfigurationAction<
-  K extends keyof Configuration = keyof Configuration
+  K extends keyof Configuration = keyof Configuration,
 > = {
   key: K;
   value: Configuration[K];

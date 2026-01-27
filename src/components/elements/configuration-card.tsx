@@ -1,5 +1,5 @@
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Field, FieldLabel } from "@/components/ui/field";
+import { Field, FieldLabel, FieldSeparator } from "@/components/ui/field";
 import { Slider } from "@/components/ui/slider";
 import type { Configuration, ConfigurationAction } from "@/lib/types";
 import { useReducer } from "react";
@@ -75,6 +75,14 @@ export function ConfigurationCard({ value, onChange }: Props) {
                         <Slider min={0} max={configuration.size} step={1} value={configuration.endX} onValueChange={(value) => setConfig("endX", value as number)} />
                         <Slider min={0} max={configuration.size} step={1} value={configuration.endY} onValueChange={(value) => setConfig("endY", value as number)} />
                     </div>
+                </Field>
+                <FieldSeparator className="my-4" />
+                <Field>
+                    <div className="flex items-center justify-between">
+                        <FieldLabel>Curve Parameter (t)</FieldLabel>
+                        <div className="text-muted-foreground text-sm">{configuration.t}</div>
+                    </div>
+                    <Slider min={0} max={1} step={0.01} value={configuration.t} onValueChange={(value) => setConfig("t", value as number)} />
                 </Field>
             </CardContent>
         </Card>
